@@ -101,7 +101,7 @@ int main() {
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 
-    GLFWwindow* window = glfwCreateWindow(1280, 760, "Timeline Designer", nullptr, nullptr);
+    GLFWwindow* window = glfwCreateWindow(1280, 760, "CODE80", nullptr, nullptr);
     if (!window) {
         glfwTerminate();
         return 1;
@@ -151,7 +151,7 @@ int main() {
                      ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse |
                          ImGuiWindowFlags_NoTitleBar);
 
-        ImGui::TextColored(ImVec4(0.40f, 0.70f, 1.00f, 1.0f), "Timeline Designer");
+        ImGui::TextColored(ImVec4(0.40f, 0.70f, 1.00f, 1.0f), "CODE80");
         ImGui::Separator();
 
         ImGui::BeginChild("left", ImVec2(io.DisplaySize.x * 0.60f, -50.0f), true);
