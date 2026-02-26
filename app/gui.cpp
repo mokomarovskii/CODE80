@@ -93,4 +93,99 @@ bool validateForm(const FormState& form, std::string& message) {
 }
 }  // namespace
 
+int main() {
+    if (!glfwInit()) {
+        return 1;
+    }
 
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+
+    GLFWwindow* window = glfwCreateWindow(1280, 760, "Timeline Designer", nullptr, nullptr);
+    if (!window) {
+        glfwTerminate();
+        return 1;
+    }
+
+    glfwMakeContextCurrent(window);
+    glfwSwapInterval(1);
+
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO();
+    io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+
+    applyModernStyle();
+
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init("#version 130");
+
+    Database db;
+    if (!db.open("events.db") || !db.createTable()) {
+        return 1;
+    }
+
+    FormState form;
+    FilterState filter;
+    int selectedId = -1;
+    std::string status = "Ready";
+
+    while (!glfwWindowShouldClose(window)) {
+        glfwPollEvents();
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+        std::vector<Event> allEvents = db.loadAllEvents();
+        std::vector<Event> visibleEvents;
+        for (const Event& event : allEvents) {
+            if (passesFilter(event, filter)) {
+                visibleEvents.push_back(event);
+            }
+        }
+
+        ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f), ImGuiCond_Always);
+        ImGui::SetNextWindowSize(io.DisplaySize, ImGuiCond_Always);
+        ImGui::Begin("Timeline UI", nullptr,
+                     ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoCollapse |
+                         ImGuiWindowFlags_NoTitleBar);
+
+        ImGui::TextColored(ImVec4(0.40f, 0.70f, 1.00f, 1.0f), "Timeline Designer");
+        ImGui::Separator();
+
+        ImGui::BeginChild("left", ImVec2(io.DisplaySize.x * 0.60f, -50.0f), true);
+        ImGui::Text("Event board");
+
+        if (ImGui::BeginTable("event_table", 5,
+                              ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable |
+                                  ImGuiTableFlags_ScrollY,
+                              ImVec2(0.0f, 0.0f))) {
+            ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthFixed, 50.0f);
+            ImGui::TableSetupColumn("Date", ImGuiTableColumnFlags_WidthFixed, 90.0f);
+            ImGui::TableSetupColumn("Title");
+            ImGui::TableSetupColumn("Theme");
+            ImGui::TableSetupColumn("Place");
+            ImGui::TableHeadersRow();
+
+            for (const Event& event : visibleEvents) {
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                char idBuffer[32];
+                std::snprintf(idBuffer, sizeof(idBuffer), "%d", event.id);
+                if (ImGui::Selectable(idBuffer, selectedId == event.id,
+                                      ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowItemOverlap)) {
+                    selectedId = event.id;
+                }
+
+                ImGui::TableSetColumnIndex(1);
+                ImGui::Text("%02d.%d", event.date.month, event.date.year);
+                ImGui::TableSetColumnIndex(2);
+                ImGui::TextUnformatted(event.title.c_str());
+                ImGui::TableSetColumnIndex(3);
+                ImGui::TextUnformatted(event.theme.c_str());
+                ImGui::TableSetColumnIndex(4);
+                ImGui::TextUnformatted(event.place.c_str());
+            }
+            ImGui::EndTable();
+        }
