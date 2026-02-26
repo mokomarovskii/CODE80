@@ -49,10 +49,10 @@ int main() {
         if (choice >= 1 && choice <= 4) {
             Event e = readEventFromUser();
             if (!db.insertEvent(e)) {
-                cout << "DB write error.\n";
+                cout << "Database write error.\n";
             }
             loadFromDbToList(db, list);
-            cout << "Added successfully.\n";
+            cout << "Added successfully\n";
         } else if (choice == 5) {
             int id = readInt("ID to edit: ", 1, 1000000);
             Event e = readEventFromUser();
@@ -95,6 +95,6 @@ int main() {
         }
     } while (choice != 0);
 
-    cout << "Bye!\n";
+    cout << "Work finished\n";
     return 0;
 }
