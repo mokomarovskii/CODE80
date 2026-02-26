@@ -1,0 +1,10 @@
+bin/
+build/
+lib/
+*.db
+.vs/
+*.VC.db
+x64/
+Debug/
+Release/
+*.user
