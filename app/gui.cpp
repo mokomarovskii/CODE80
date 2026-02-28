@@ -197,6 +197,7 @@ int main() {
     if (!db.open("events.db") || !db.createTable()) {
         return 1;
     }
+    loadBulgarianWinsPreset(db);
     FormState form;
     FormState editForm;
     FilterState filter;
@@ -243,7 +244,7 @@ int main() {
             ImGui::TableSetupColumn("Leader");
             ImGui::TableSetupColumn("Participants");
             ImGui::TableSetupColumn("Result");
-            ImGui::TableHeadersRow();
+            
 
             for (const Event& event : visibleEvents) {
                 ImGui::TableNextRow();
