@@ -35,6 +35,17 @@ struct FormState {
     }
 };
 
+void copyEventToForm(const Event& event, FormState& form) {
+    std::snprintf(form.theme, sizeof(form.theme), "%s", event.theme.c_str());
+    std::snprintf(form.title, sizeof(form.title), "%s", event.title.c_str());
+    form.month = event.date.month;
+    form.year = event.date.year;
+    std::snprintf(form.place, sizeof(form.place), "%s", event.place.c_str());
+    std::snprintf(form.leader, sizeof(form.leader), "%s", event.leader.c_str());
+    std::snprintf(form.participants, sizeof(form.participants), "%s", event.participants.c_str());
+    std::snprintf(form.result, sizeof(form.result), "%s", event.result.c_str());
+}
+
 struct FilterState {
     char theme[128] = "";
     char place[128] = "";
@@ -186,10 +197,11 @@ int main() {
     if (!db.open("events.db") || !db.createTable()) {
         return 1;
     }
-    loadBulgarianWinsPreset(db);
     FormState form;
+    FormState editForm;
     FilterState filter;
     int selectedId = -1;
+    int loadedForEditId = -1;
     std::string status = "Ready";
 
     while (!glfwWindowShouldClose(window)) {
@@ -219,15 +231,18 @@ int main() {
         ImGui::BeginChild("left", ImVec2(io.DisplaySize.x * 0.60f, -50.0f), true);
         ImGui::Text("Event board");
 
-        if (ImGui::BeginTable("event_table", 5,
+        if (ImGui::BeginTable("event_table", 8,
                               ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable |
-                                  ImGuiTableFlags_ScrollY,
+                                  ImGuiTableFlags_ScrollY | ImGuiTableFlags_ScrollX,
                               ImVec2(0.0f, 0.0f))) {
             ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthFixed, 50.0f);
             ImGui::TableSetupColumn("Date", ImGuiTableColumnFlags_WidthFixed, 90.0f);
             ImGui::TableSetupColumn("Title");
             ImGui::TableSetupColumn("Theme");
             ImGui::TableSetupColumn("Place");
+            ImGui::TableSetupColumn("Leader");
+            ImGui::TableSetupColumn("Participants");
+            ImGui::TableSetupColumn("Result");
             ImGui::TableHeadersRow();
 
             for (const Event& event : visibleEvents) {
@@ -248,6 +263,12 @@ int main() {
                 ImGui::TextUnformatted(event.theme.c_str());
                 ImGui::TableSetColumnIndex(4);
                 ImGui::TextUnformatted(event.place.c_str());
+                ImGui::TableSetColumnIndex(5);
+                ImGui::TextUnformatted(event.leader.c_str());
+                ImGui::TableSetColumnIndex(6);
+                ImGui::TextUnformatted(event.participants.c_str());
+                ImGui::TableSetColumnIndex(7);
+                ImGui::TextUnformatted(event.result.c_str());
             }
             ImGui::EndTable();
         }
@@ -295,7 +316,66 @@ int main() {
 
                 ImGui::EndTabItem();
             }
+            if (ImGui::BeginTabItem("Edit selected")) {
+                if (selectedId <= 0) {
+                    ImGui::TextWrapped("Select a row in the table first.");
+                } else {
+                    Event* selectedEvent = nullptr;
+                    for (Event& event : allEvents) {
+                        if (event.id == selectedId) {
+                            selectedEvent = &event;
+                            break;
+                        }
+                    }
 
+                    if (!selectedEvent) {
+                        ImGui::TextWrapped("Selected row is no longer available.");
+                    } else {
+                        if (loadedForEditId != selectedId) {
+                            copyEventToForm(*selectedEvent, editForm);
+                            loadedForEditId = selectedId;
+                        }
+
+                        ImGui::Text("Editing ID: %d", selectedId);
+                        ImGui::InputText("Theme##edit", editForm.theme, sizeof(editForm.theme));
+                        ImGui::InputText("Title##edit", editForm.title, sizeof(editForm.title));
+                        ImGui::InputInt("Month##edit", &editForm.month);
+                        ImGui::InputInt("Year##edit", &editForm.year);
+                        ImGui::InputText("Place##edit", editForm.place, sizeof(editForm.place));
+                        ImGui::InputText("Leader##edit", editForm.leader, sizeof(editForm.leader));
+                        ImGui::InputText("Participants##edit", editForm.participants, sizeof(editForm.participants));
+                        ImGui::InputTextMultiline("Result##edit", editForm.result, sizeof(editForm.result),
+                                                  ImVec2(-FLT_MIN, 90.0f));
+
+                        if (ImGui::Button("Update selected", ImVec2(200.0f, 0.0f))) {
+                            Event updated{};
+                            updated.id = selectedId;
+                            updated.theme = editForm.theme;
+                            updated.title = editForm.title;
+                            updated.date.month = editForm.month;
+                            updated.date.year = editForm.year;
+                            updated.place = editForm.place;
+                            updated.leader = editForm.leader;
+                            updated.participants = editForm.participants;
+                            updated.result = editForm.result;
+
+                            if (!validateForm(editForm, status)) {
+                                // status already set
+                            } else if (db.updateEvent(updated)) {
+                                status = "Selected event updated.";
+                            } else {
+                                status = "Update failed.";
+                            }
+                        }
+                        ImGui::SameLine();
+                        if (ImGui::Button("Reload from DB", ImVec2(150.0f, 0.0f))) {
+                            copyEventToForm(*selectedEvent, editForm);
+                            status = "Edit form reloaded.";
+                        }
+                    }
+                }
+                ImGui::EndTabItem();
+            }
             if (ImGui::BeginTabItem("Filter")) {
                 ImGui::InputText("Theme filter", filter.theme, sizeof(filter.theme));
                 ImGui::InputText("Place filter", filter.place, sizeof(filter.place));
