@@ -229,22 +229,23 @@ int main() {
         ImGui::TextColored(ImVec4(0.40f, 0.70f, 1.00f, 1.0f), "CODE80");
         ImGui::Separator();
 
-        ImGui::BeginChild("left", ImVec2(io.DisplaySize.x * 0.60f, -50.0f), true);
+        ImGui::BeginChild("left", ImVec2(io.DisplaySize.x * 0.70f, -50.0f), true);
         ImGui::Text("Event board");
-
+        const float tableMinWidthForScroll = 1700.0f;
         if (ImGui::BeginTable("event_table", 8,
                               ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_Resizable |
-                                  ImGuiTableFlags_ScrollY | ImGuiTableFlags_ScrollX,
-                              ImVec2(0.0f, 0.0f))) {
-            ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthFixed, 50.0f);
-            ImGui::TableSetupColumn("Date", ImGuiTableColumnFlags_WidthFixed, 90.0f);
-            ImGui::TableSetupColumn("Title");
-            ImGui::TableSetupColumn("Theme");
-            ImGui::TableSetupColumn("Place");
-            ImGui::TableSetupColumn("Leader");
-            ImGui::TableSetupColumn("Participants");
-            ImGui::TableSetupColumn("Result");
-            
+            ImGuiTableFlags_ScrollY | ImGuiTableFlags_ScrollX |
+            ImGuiTableFlags_SizingStretchProp,
+            ImVec2(0.0f, 0.0f), tableMinWidthForScroll)) {
+            ImGui::TableSetupColumn("ID", ImGuiTableColumnFlags_WidthStretch, 0.55f);
+            ImGui::TableSetupColumn("Year", ImGuiTableColumnFlags_WidthStretch, 0.85f);
+            ImGui::TableSetupColumn("Title", ImGuiTableColumnFlags_WidthStretch, 1.25f);
+            ImGui::TableSetupColumn("Thema", ImGuiTableColumnFlags_WidthStretch, 1.15f);
+            ImGui::TableSetupColumn("Place", ImGuiTableColumnFlags_WidthStretch, 1.10f);
+            ImGui::TableSetupColumn("Leader", ImGuiTableColumnFlags_WidthStretch, 1.10f);
+            ImGui::TableSetupColumn("Participants", ImGuiTableColumnFlags_WidthStretch, 0.90f);
+            ImGui::TableSetupColumn("Result", ImGuiTableColumnFlags_WidthStretch, 1.90f);
+            ImGui::TableHeadersRow();
 
             for (const Event& event : visibleEvents) {
                 ImGui::TableNextRow();
