@@ -10,6 +10,8 @@
 ![UI](https://img.shields.io/badge/UI-ImGui%2FGLFW-orange)
 ![Platform](https://img.shields.io/badge/platform-Linux%20%7C%20Windows-lightgrey)
 
+[Presentation](./CODE80.pptx)
+
 </div>
 
 ---
