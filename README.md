@@ -12,6 +12,8 @@
 
 [Presentation](./CODE80.pptx)
 
+[Documentation](./CODE80Documentation.docx)
+
 </div>
 
 ---
