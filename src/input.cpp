@@ -3,6 +3,7 @@
 #include "input.h"
 using namespace std;
 
+// Read an integer from input and keep asking until it is valid.
 int readInt(const string& label, int minValue, int maxValue) {
     int value;
     while (true) {
@@ -26,6 +27,7 @@ int readInt(const string& label, int minValue, int maxValue) {
     }
 }
 
+// Read a text value and reject empty input.
 string readNonEmptyString(const string& label) {
     string value;
     while (true) {
@@ -38,6 +40,7 @@ string readNonEmptyString(const string& label) {
     }
 }
 
+// Read all event fields from the console and build an Event.
 Event readEventFromUser() {
     Event e;
     e.id = 0;

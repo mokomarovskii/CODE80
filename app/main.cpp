@@ -8,6 +8,7 @@ using namespace std;
 
 
 
+// Seed the database with predefined events when it is empty.
 void loadBulgarianWinsPreset(Database& db) {
     if (!db.loadAllEvents().empty()) {
         return;
@@ -71,6 +72,7 @@ void loadBulgarianWinsPreset(Database& db) {
     }
 }
 
+// Reload linked-list data from the database in chronological order.
 void loadFromDbToList(Database& db, EventList& list) {
     list.clear();
     vector<Event> events = db.loadAllEvents();
@@ -79,6 +81,7 @@ void loadFromDbToList(Database& db, EventList& list) {
     }
 }
 
+// Display the console menu with available actions.
 void showMenu() {
     cout << "\n===== TIME LIST =====\n";
     cout << "1. Add first element\n";
@@ -94,6 +97,7 @@ void showMenu() {
     cout << "0. Exit\n";
 }
 
+// Run the console application loop for managing events.
 int main() {
     Database db;
     if (!db.open("events.db")) {

@@ -3,14 +3,17 @@
 #include "event_list.h"
 using namespace std;
 
+// Initialize an empty linked list.
 EventList::EventList() {
     head = nullptr;
 }
 
+// Release all nodes when the list object is destroyed.
 EventList::~EventList() {
     clear();
 }
 
+// Delete every node and reset the list to an empty state.
 void EventList::clear() {
     Node* current = head;
     while (current != nullptr) {
@@ -21,10 +24,12 @@ void EventList::clear() {
     head = nullptr;
 }
 
+// Check whether the list has no elements.
 bool EventList::isEmpty() const {
     return head == nullptr;
 }
 
+// Insert the first element only if the list is currently empty.
 void EventList::addFirst(const Event& event) {
     if (head != nullptr) {
         return;
@@ -32,11 +37,13 @@ void EventList::addFirst(const Event& event) {
     head = new Node{event, nullptr};
 }
 
+// Push a new event to the beginning of the list.
 void EventList::addAtStart(const Event& event) {
     Node* newNode = new Node{event, head};
     head = newNode;
 }
 
+// Append a new event to the end of the list.
 void EventList::addAtEnd(const Event& event) {
     Node* newNode = new Node{event, nullptr};
     if (head == nullptr) {
@@ -51,6 +58,7 @@ void EventList::addAtEnd(const Event& event) {
     current->next = newNode;
 }
 
+// Insert an event while keeping the list ordered by date.
 void EventList::addSortedByDate(const Event& event, bool ascending) {
     Node* newNode = new Node{event, nullptr};
 
@@ -81,6 +89,7 @@ void EventList::addSortedByDate(const Event& event, bool ascending) {
     current->next = newNode;
 }
 
+// Replace an event by ID while keeping the original ID unchanged.
 bool EventList::editById(int id, const Event& updatedEvent) {
     Node* current = head;
     while (current != nullptr) {
@@ -94,6 +103,7 @@ bool EventList::editById(int id, const Event& updatedEvent) {
     return false;
 }
 
+// Remove the event with the given ID and relink the list.
 bool EventList::deleteById(int id) {
     if (head == nullptr) {
         return false;
@@ -121,6 +131,7 @@ bool EventList::deleteById(int id) {
     return true;
 }
 
+// Find the first event that matches a year and optional month.
 Node* EventList::findByDate(int year, int month) const {
     Node* current = head;
     while (current != nullptr) {
@@ -132,6 +143,7 @@ Node* EventList::findByDate(int year, int month) const {
     return nullptr;
 }
 
+// Find the first event whose theme exactly matches the value.
 Node* EventList::findByTheme(const string& theme) const {
     Node* current = head;
     while (current != nullptr) {
@@ -143,10 +155,12 @@ Node* EventList::findByTheme(const string& theme) const {
     return nullptr;
 }
 
+// Provide direct access to the list head pointer.
 Node* EventList::getHead() const {
     return head;
 }
 
+// Print all events in a readable table-like format.
 void EventList::printAll() const {
     if (head == nullptr) {
         cout << "List is empty.\n";

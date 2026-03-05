@@ -4,6 +4,7 @@
 using namespace std;
 
 namespace {
+// Execute a raw SQL statement and print any SQLite error.
 bool execSql(sqlite3* db, const char* sql) {
     char* errMsg = nullptr;
     int rc = sqlite3_exec(db, sql, nullptr, nullptr, &errMsg);
@@ -17,6 +18,7 @@ bool execSql(sqlite3* db, const char* sql) {
     return true;
 }
 
+// Convert the current SQLite row into an Event object.
 Event rowToEvent(sqlite3_stmt* stmt) {
     Event e;
     e.id = sqlite3_column_int(stmt, 0);
@@ -40,12 +42,15 @@ Event rowToEvent(sqlite3_stmt* stmt) {
 }
 }
 
+// Set default database path and start with no open connection.
 Database::Database() : dbPath("events.db"), conn(nullptr) {}
 
+// Ensure the database connection is closed on destruction.
 Database::~Database() {
     close();
 }
 
+// Open a SQLite database file and ensure the events table exists.
 bool Database::open(const string& filePath) {
     dbPath = filePath;
     close();
@@ -60,6 +65,7 @@ bool Database::open(const string& filePath) {
     return createTable();
 }
 
+// Close the active SQLite connection if it is open.
 void Database::close() {
     if (conn) {
         sqlite3_close(conn);
@@ -67,6 +73,7 @@ void Database::close() {
     }
 }
 
+// Create the events table when it does not already exist.
 bool Database::createTable() {
     if (!conn) return false;
 
@@ -86,6 +93,7 @@ bool Database::createTable() {
     return execSql(conn, sql);
 }
 
+// Insert a new event record into the database.
 bool Database::insertEvent(const Event& event) {
     if (!conn) return false;
 
@@ -110,6 +118,7 @@ bool Database::insertEvent(const Event& event) {
     return ok;
 }
 
+// Update an existing event identified by its ID.
 bool Database::updateEvent(const Event& event) {
     if (!conn) return false;
 
@@ -136,6 +145,7 @@ bool Database::updateEvent(const Event& event) {
     return ok && changes > 0;
 }
 
+// Delete an event record by ID.
 bool Database::deleteEvent(int id) {
     if (!conn) return false;
 
@@ -152,6 +162,7 @@ bool Database::deleteEvent(int id) {
     return ok && changes > 0;
 }
 
+// Load all events ordered by year and month.
 vector<Event> Database::loadAllEvents() {
     vector<Event> events;
     if (!conn) return events;
@@ -171,6 +182,7 @@ vector<Event> Database::loadAllEvents() {
     return events;
 }
 
+// Return all events that match the given year.
 vector<Event> Database::searchByYear(int year) {
     vector<Event> events;
     if (!conn) return events;
@@ -192,6 +204,7 @@ vector<Event> Database::searchByYear(int year) {
     return events;
 }
 
+// Return events whose theme contains the given text.
 vector<Event> Database::searchByTheme(const string& theme) {
     vector<Event> events;
     if (!conn) return events;

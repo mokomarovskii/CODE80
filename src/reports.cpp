@@ -2,6 +2,7 @@
 #include "reports.h"
 using namespace std;
 
+// Print titles of all events in the list.
 void reportAllTitles(Node* head) {
     cout << "\n[REPORT 1] All titles:\n";
     if (head == nullptr) {
@@ -16,6 +17,7 @@ void reportAllTitles(Node* head) {
     }
 }
 
+// Print events whose theme contains the requested text.
 void reportByTheme(Node* head, const string& theme) {
     cout << "\n[REPORT 2] Events by theme: " << theme << "\n";
     bool hasData = false;
@@ -34,6 +36,7 @@ void reportByTheme(Node* head, const string& theme) {
     }
 }
 
+// Print events that describe a Bulgarian victory outcome.
 void reportBulgarianWins(Node* head) {
     cout << "\n[REPORT 3] Events with Bulgaria victory:\n";
     bool hasData = false;

@@ -23,6 +23,7 @@ struct FormState {
     char participants[256] = "";
     char result[256] = "";
 
+    // Reset all form fields to their default values.
     void clear() {
         theme[0] = '\0';
         title[0] = '\0';
@@ -35,6 +36,7 @@ struct FormState {
     }
 };
 
+// Copy event values into editable form fields.
 void copyEventToForm(const Event& event, FormState& form) {
     std::snprintf(form.theme, sizeof(form.theme), "%s", event.theme.c_str());
     std::snprintf(form.title, sizeof(form.title), "%s", event.title.c_str());
@@ -52,15 +54,18 @@ struct FilterState {
     int year = 0;
 };
 
+// Check whether a value contains a filter or the filter is empty.
 bool containsSubstring(const std::string& value, const char* filter) {
     return filter[0] == '\0' || value.find(filter) != std::string::npos;
 }
 
+// Decide if an event satisfies all active GUI filters.
 bool passesFilter(const Event& event, const FilterState& filter) {
     return containsSubstring(event.theme, filter.theme) && containsSubstring(event.place, filter.place) &&
            (filter.year <= 0 || event.date.year == filter.year);
 }
 
+// Apply a custom dark style for the ImGui interface.
 void applyModernStyle() {
     ImGuiStyle& style = ImGui::GetStyle();
     style.WindowRounding = 10.0f;
@@ -86,6 +91,7 @@ void applyModernStyle() {
     c[ImGuiCol_Border] = ImVec4(0.35f, 0.40f, 0.54f, 0.40f);
 }
 
+// Validate form fields and return an error message when invalid.
 bool validateForm(const FormState& form, std::string& message) {
     if (form.theme[0] == '\0' || form.title[0] == '\0' || form.place[0] == '\0' || form.leader[0] == '\0' ||
         form.participants[0] == '\0' || form.result[0] == '\0') {
@@ -103,6 +109,7 @@ bool validateForm(const FormState& form, std::string& message) {
     return true;
 }
 }  // namespace
+// Seed the GUI database with preset events when no data exists.
 void loadBulgarianWinsPreset(Database& db) {
     if (!db.loadAllEvents().empty()) {
         return;
@@ -166,6 +173,7 @@ void loadBulgarianWinsPreset(Database& db) {
     }
 }
 
+// Start the GUI app and process rendering/input until exit.
 int main() {
     if (!glfwInit()) {
         return 1;
@@ -434,6 +442,7 @@ int main() {
 #else
 #include <iostream>
 
+// Fallback entry point when GUI dependencies are not enabled.
 int main() {
     std::cout << "GUI backend is disabled for this build.\n";
     std::cout << "Enable TIMELINE_IMGUI_GUI and install dependencies via vcpkg.\n";
